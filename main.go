@@ -9,9 +9,11 @@ import (
 )
 
 var str = ""
+var decoding = false
 
 func main() {
 	flag.StringVar(&str, "data", str, "string to encode")
+	flag.BoolVar(&decoding, "decode", decoding, "decode instead of encode")
 	flag.Parse()
 	if str == "" {
 		if data, err := ioutil.ReadAll(os.Stdin); err != nil {
@@ -20,5 +22,16 @@ func main() {
 			str = string(data)
 		}
 	}
-	os.Stdout.WriteString(url.QueryEscape(str))
+	if !decoding {
+		os.Stdout.WriteString(url.QueryEscape(str))
+	} else {
+		out, err := url.QueryUnescape(str)
+		if err != nil {
+			os.Stderr.WriteString(err.Error() + "\n")
+		}
+		os.Stdout.WriteString(out)
+		if err != nil {
+			os.Exit(1)
+		}
+	}
 }
